@@ -1,0 +1,403 @@
+# Default values for jenkins.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+## Overrides for generated resource names
+# See templates/_helpers.tpl
+# nameOverride:
+# fullnameOverride:
+
+Master:
+  Name: jenkins-master
+  Image: "jawlitkp/jenkins"
+  ImageTag: "v1.0.0"
+  ImagePullPolicy: "IfNotPresent"
+# ImagePullSecret: jenkins
+  Component: "jenkins-master"
+  UseSecurity: true
+  # SecurityRealm:
+  # Optionally configure a different AuthorizationStrategy using Jenkins XML
+  # AuthorizationStrategy: |-
+  #    <authorizationStrategy class="hudson.security.FullControlOnceLoggedInAuthorizationStrategy">
+  #      <denyAnonymousReadAccess>true</denyAnonymousReadAccess>
+  #    </authorizationStrategy>
+  HostNetworking: false
+  AdminUser: admin
+  # AdminPassword: <defaults to random>
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2048Mi"
+  # Environment variables that get added to the init container (useful for e.g. http_proxy)
+  # InitContainerEnv:
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  # ContainerEnv:
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  # Set min/max heap here if needed with:
+  # JavaOpts: "-Xms512m -Xmx512m"
+  # JenkinsOpts: ""
+  # JenkinsUrl: ""
+  # If you set this prefix and use ingress controller then you might want to set the ingress path below
+  # JenkinsUriPrefix: "/jenkins"
+  # Enable pod security context (must be `true` if RunAsUser or FsGroup are set)
+  UsePodSecurityContext: true
+  # Set RunAsUser to 1000 to let Jenkins run as non-root user 'jenkins' which exists in 'jenkins/jenkins' docker image.
+  # When setting RunAsUser to a different value than 0 also set FsGroup to the same value:
+  # RunAsUser: <defaults to 0>
+  # FsGroup: <will be omitted in deployment if RunAsUser is 0>
+  ServicePort: 8080
+  # For minikube, set this to NodePort, elsewhere use LoadBalancer
+  # Use ClusterIP if your setup includes ingress controller
+  ServiceType: LoadBalancer
+  # Master Service annotations
+  ServiceAnnotations: {}
+  # Master Service Labels
+  ServiceLabels: {}
+  #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+  # Used to create Ingress record (should used with ServiceType: ClusterIP)
+  # HostName: jenkins.cluster.local
+  # NodePort: <to set explicitly, choose port between 30000-32767
+  # Enable Kubernetes Liveness and Readiness Probes
+  # ~ 2 minutes to allow Jenkins to restart when upgrading plugins. Set ReadinessTimeout to be shorter than LivenessTimeout.
+  HealthProbes: true
+  HealthProbesLivenessTimeout: 90
+  HealthProbesReadinessTimeout: 60
+  HealthProbeLivenessFailureThreshold: 12
+  SlaveListenerPort: 50000
+  DisabledAgentProtocols:
+    - JNLP-connect
+    - JNLP2-connect
+  CSRF:
+    DefaultCrumbIssuer:
+      Enabled: true
+      ProxyCompatability: true
+  CLI: true
+  # Kubernetes service type for the JNLP slave service
+  # SETTING THIS TO "LoadBalancer" IS A HUGE SECURITY RISK: https://github.com/kubernetes/charts/issues/1341
+  SlaveListenerServiceType: ClusterIP
+  SlaveListenerServiceAnnotations: {}
+  LoadBalancerSourceRanges:
+  - 0.0.0.0/0
+  # Optionally assign a known public LB IP
+  # LoadBalancerIP: 1.2.3.4
+  # Optionally configure a JMX port
+  # requires additional JavaOpts, ie
+  # JavaOpts: >
+  #   -Dcom.sun.management.jmxremote.port=4000
+  #   -Dcom.sun.management.jmxremote.authenticate=false
+  #   -Dcom.sun.management.jmxremote.ssl=false
+  # JMXPort: 4000
+  # Optionally configure other ports to expose in the Master container
+  ExtraPorts:
+  # - name: BuildInfoProxy
+  #   port: 9000
+  # List of plugins to be install during Jenkins master start
+  InstallPlugins:
+    # - workflow-multibranch:2.19
+    # - kubernetes:1.14.2
+    # - workflow-aggregator:2.6
+    # - workflow-job:2.21
+    # - credentials-binding:1.17
+    # - git:3.9.1
+    # - blueocean:1.10.1
+    # - ace-editor:1.1
+    # - ant:1.9
+    # - apache-httpcomponents-client-4-api:4.5.5-3.0
+    # - artifactory:2.16.2
+    # - authentication-tokens:1.3
+    # - blueocean-autofavorite:1.2.2
+    # - blueocean-bitbucket-pipeline:1.9.0
+    # - blueocean-commons:1.9.0
+    # - blueocean-config:1.9.0
+    # - blueocean-core-js:1.9.0
+    # - blueocean-dashboard:1.9.0
+    # - blueocean-display-url:2.2.0
+    # - blueocean-events:1.9.0
+    # - blueocean-git-pipeline:1.9.0
+    # - blueocean-github-pipeline:1.9.0
+    # - blueocean-i18n:1.9.0
+    # - blueocean-jira:1.9.0
+    # - blueocean-jwt:1.9.0
+    # - blueocean-personalization:1.9.0
+    # - blueocean-pipeline-api-impl:1.9.0
+    # - blueocean-pipeline-editor:1.9.0
+    # - blueocean-pipeline-scm-api:1.9.0
+    # - blueocean-rest-impl:1.9.0
+    # - blueocean-rest:1.9.0
+    # - blueocean-web:1.9.0
+    # - blueocean:1.9.0
+    # - bouncycastle-api:2.17
+    # - branch-api:2.1.2
+    # - cloudbees-bitbucket-branch-source:2.2.15
+    # - cloudbees-folder:6.7
+    # - command-launcher:1.2
+    # - configuration-as-code:1.3
+    # - config-file-provider:3.4.1
+    # - credentials-binding:1.17
+    # - credentials:2.1.18
+    # - display-url-api:2.3.0
+    # - docker-commons:1.13
+    # - docker-workflow:1.17
+    # - durable-task:1.28
+    # - favorite:2.3.2
+    # - git-client:2.7.4
+    # - git-server:1.7
+    # - git:3.9.1
+    # - gitea:1.0.8
+    # - github-api:1.95
+    # - github-branch-source:2.4.1
+    # - github:1.29.3
+    # - gitlab-plugin:1.5.11
+    # - handlebars:1.1.1
+    # - handy-uri-templates-2-api:2.1.6-1.0
+    # - htmlpublisher:1.17
+    # - jackson2-api:2.9.7.1
+    # - jenkins-design-language:1.9.0
+    # - jira:3.0.5
+    # - jquery-detached:1.2.1
+    # - jsch:0.1.54.2
+    # - junit:1.26.1
+    # - jx-resources:1.0.24
+    # - kubernetes-credentials:0.4.0
+    # - kubernetes-credentials-provider:0.10
+    # - kubernetes:1.13.7
+    # - mailer:1.22
+    # - matrix-project:1.13
+    # - mercurial:2.4
+    # - momentjs:1.1.1
+    # - pipeline-build-step:2.7
+    # - pipeline-graph-analysis:1.9
+    # - pipeline-input-step:2.8
+    # - pipeline-milestone-step:1.3.1
+    # - pipeline-model-api:1.3.3
+    # - pipeline-model-declarative-agent:1.1.1
+    # - pipeline-model-definition:1.3.3
+    # - pipeline-model-extensions:1.3.3
+    # - pipeline-rest-api:2.10
+    # - pipeline-stage-step:2.3
+    # - pipeline-stage-tags-metadata:1.3.3
+    # - pipeline-stage-view:2.10
+    # - plain-credentials:1.4
+    # - pubsub-light:1.12
+    # - resource-disposer:0.12
+    # - scm-api:2.3.0
+    # - script-security:1.49
+    # - sse-gateway:1.16
+    # - ssh-credentials:1.14
+    # - structs:1.17
+    # - support-core:2.52
+    # - token-macro:2.5
+    # - variant:1.1
+    # - workflow-aggregator:2.6
+    # - workflow-api:2.33
+    # - workflow-basic-steps:2.13
+    # - workflow-cps-global-lib:2.12
+    # - workflow-cps:2.61
+    # - workflow-durable-task-step:2.26
+    # - workflow-job:2.30
+    # - workflow-multibranch:2.20
+    # - workflow-scm-step:2.7
+    # - workflow-step-api:2.17
+    # - workflow-support:2.23
+    # - ws-cleanup:0.36
+    # - maven-plugin:3.2
+    # - gradle:1.29
+    # - ivy:1.28
+    # - javadoc:1.4
+    # - metrics:4.0.2.2
+    # - lockable-resources:2.3
+  # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
+  # ScriptApproval:
+  #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+  #   - "new groovy.json.JsonSlurperClassic"
+  # List of groovy init scripts to be executed during Jenkins master start
+  InitScripts:
+  #  - |
+  #    print 'adding global pipeline libraries, register properties, bootstrap jobs...'
+  # Kubernetes secret that contains a 'credentials.xml' for Jenkins
+  # CredentialsXmlSecret: jenkins-credentials
+  # Kubernetes secret that contains files to be put in the Jenkins 'secrets' directory,
+  # useful to manage encryption keys used for credentials.xml for instance (such as
+  # master.key and hudson.util.Secret)
+  # SecretsFilesSecret: jenkins-secrets
+  # Jenkins XML job configs to provision
+  # Jobs: |-
+  #   test: |-
+  #     <<xml here>>
+  CustomConfigMap: false
+  # By default, the configMap is only used to set the initial config the first time
+  # that the chart is installed.  Setting `OverwriteConfig` to `true` will overwrite
+  # the jenkins config with the contents of the configMap every time the pod starts.
+  OverwriteConfig: false
+  # Node labels and tolerations for pod assignment
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  NodeSelector: {}
+  Tolerations: {}
+  PodAnnotations: {}
+
+  Ingress:
+    ApiVersion: extensions/v1beta1
+    Annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+    # Set this path to JenkinsUriPrefix above or use annotations to rewrite path
+    # Path: "/jenkins"
+
+    TLS:
+    # - secretName: jenkins.cluster.local
+    #   hosts:
+    #     - jenkins.cluster.local
+  AdditionalConfig: {}
+  Jobs:
+    consul-deploy: |-
+      <?xml version='1.1' encoding='UTF-8'?>
+      <flow-definition plugin="workflow-job@2.30">
+        <actions/>
+        <description></description>
+        <keepDependencies>false</keepDependencies>
+        <properties>
+          <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.11">
+            <gitLabConnection></gitLabConnection>
+          </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+        </properties>
+        <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.61">
+          <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+            <configVersion>2</configVersion>
+            <userRemoteConfigs>
+              <hudson.plugins.git.UserRemoteConfig>
+                <url>https://github.com/jawlitkp/consul-svc.git</url>
+              </hudson.plugins.git.UserRemoteConfig>
+            </userRemoteConfigs>
+            <branches>
+              <hudson.plugins.git.BranchSpec>
+                <name>*/master</name>
+              </hudson.plugins.git.BranchSpec>
+            </branches>
+            <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+            <submoduleCfg class="list"/>
+            <extensions/>
+          </scm>
+          <scriptPath>Jenkinsfile</scriptPath>
+          <lightweight>true</lightweight>
+        </definition>
+        <triggers/>
+        <disabled>false</disabled>
+      </flow-definition>
+    consul-config-loader-deploy: |-
+      <?xml version='1.1' encoding='UTF-8'?>
+      <flow-definition plugin="workflow-job@2.30">
+        <actions/>
+        <description></description>
+        <keepDependencies>false</keepDependencies>
+        <properties>
+          <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.11">
+            <gitLabConnection></gitLabConnection>
+          </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+        </properties>
+        <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.61">
+          <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+            <configVersion>2</configVersion>
+            <userRemoteConfigs>
+              <hudson.plugins.git.UserRemoteConfig>
+                <url>https://github.com/jawlitkp/consul-config-loader-svc.git</url>
+              </hudson.plugins.git.UserRemoteConfig>
+            </userRemoteConfigs>
+            <branches>
+              <hudson.plugins.git.BranchSpec>
+                <name>*/master</name>
+              </hudson.plugins.git.BranchSpec>
+            </branches>
+            <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+            <submoduleCfg class="list"/>
+            <extensions/>
+          </scm>
+          <scriptPath>Jenkinsfile</scriptPath>
+          <lightweight>true</lightweight>
+        </definition>
+        <triggers/>
+        <disabled>false</disabled>
+      </flow-definition>
+
+Agent:
+  Enabled: true
+  Image: jenkins/jnlp-slave
+  ImageTag: 3.10-1
+  CustomJenkinsLabels: []
+# ImagePullSecret: jenkins
+  Component: "jenkins-slave"
+  Privileged: false
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  # You may want to change this to true while testing a new image
+  AlwaysPullImage: false
+  # Controls how slave pods are retained after the Jenkins build completes
+  # Possible values: Always, Never, OnFailure
+  PodRetention: Never
+  # You can define the volumes that you want to mount for this container
+  # Allowed types are: ConfigMap, EmptyDir, HostPath, Nfs, Pod, Secret
+  # Configure the attributes as they appear in the corresponding Java class for that type
+  # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
+  volumes:
+  # - type: Secret
+  #   secretName: mysecret
+  #   mountPath: /var/myapp/mysecret
+  NodeSelector: {}
+  # Key Value selectors. Ex:
+  # jenkins-agent: v1
+  PodTemplates:
+    
+Persistence:
+  Enabled: true
+  ## A manually managed Persistent Volume and Claim
+  ## Requires Persistence.Enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # ExistingClaim:
+
+  ## jenkins data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # StorageClass: "-"
+
+  Annotations: {}
+  AccessMode: ReadWriteOnce
+  Size: 8Gi
+  volumes:
+  #  - name: nothing
+  #    emptyDir: {}
+  mounts:
+  #  - mountPath: /var/nothing
+  #    name: nothing
+  #    readOnly: true
+
+NetworkPolicy:
+  # Enable creation of NetworkPolicy resources.
+  Enabled: false
+  # For Kubernetes v1.4, v1.5 and v1.6, use 'extensions/v1beta1'
+  # For Kubernetes v1.7, use 'networking.k8s.io/v1'
+  ApiVersion: extensions/v1beta1
+
+## Install Default RBAC roles and bindings
+rbac:
+  install: true
+  serviceAccountName: default
+  # Role reference
+  roleRef: cluster-admin
+  # Role kind (RoleBinding or ClusterRoleBinding)
+  roleBindingKind: ClusterRoleBinding
